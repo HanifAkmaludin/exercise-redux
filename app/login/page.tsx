@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const router = useRouter(); // tambahkan ini
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,52 +40,86 @@ export default function HomePage() {
       password,
     });
 
-    if (res?.error) alert(res.error);
+    if (res?.error) {
+      alert(res.error);
+    } else {
+      router.push("/dashboard"); // ganti ke halaman tujuanmu
+    }
   };
 
   return (
-    <main style={{ padding: "2rem" }}>
-      {session ? (
-        <>
-          <p>Welcome, {session.user?.email}</p>
-          <button onClick={() => signOut()}>Sign Out</button>
-        </>
-      ) : (
-        <>
-          <h2>Login</h2>
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button onClick={handleLogin}>Login</button>
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+        {/* Login Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Login</h2>
+          <div className="space-y-4">
+            <input
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              type="email"
+            />
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            />
+            <button 
+              onClick={handleLogin}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-[1.02]"
+            >
+              Login
+            </button>
+          </div>
+        </div>
 
-          <h2>Register</h2>
-          <input
-            placeholder="Name"
-            value={registerName}
-            onChange={(e) => setRegisterName(e.target.value)}
-          />
-          <input
-            placeholder="Email"
-            value={registerEmail}
-            onChange={(e) => setRegisterEmail(e.target.value)}
-          />
-          <input
-            placeholder="Password"
-            type="password"
-            value={registerPassword}
-            onChange={(e) => setRegisterPassword(e.target.value)}
-          />
-          <button onClick={handleRegister}>Register</button>
-        </>
-      )}
+        {/* Divider */}
+        <div className="relative mb-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">Or</span>
+          </div>
+        </div>
+
+        {/* Register Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Register</h2>
+          <div className="space-y-4">
+            <input
+              placeholder="Name"
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            />
+            <input
+              placeholder="Email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+              type="email"
+            />
+            <input
+              placeholder="Password"
+              type="password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+            />
+            <button 
+              onClick={handleRegister}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 transform hover:scale-[1.02]"
+            >
+              Register
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

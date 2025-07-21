@@ -7,6 +7,9 @@ import { PrismaClient } from "@/app/generated/prisma";
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
+  pages: {
+    signIn: "/login",
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
