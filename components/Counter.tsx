@@ -10,6 +10,7 @@ export default function Counter() {
   const dispatch = useDispatch();
   const [val, setVal] = useState<number>(1);
   const countState = useSelector((state: RootState) => state.counter.value);
+
   return (
     <div className="flex gap-8 items-center">
       <div>

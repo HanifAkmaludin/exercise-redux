@@ -1,13 +1,19 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import ListUser from "@/components/ListUser";
-import { useAppSelector, useAppDispatch } from "@/lib/hooks";
-import { setUsers, type User, setLoading } from "@/lib/features/userSlice";
+
+import { useAppDispatch } from "@/lib/hooks";
+import { setLoading, setListUsers } from "@/lib/features/userSlice";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export default function Page(){
   const dispatch = useAppDispatch();
-  const users = useAppSelector(state => state.user.users);
+  const [users, setUsers] = useState([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
@@ -17,7 +23,8 @@ export default function Page(){
     fetch('/api/users')
       .then(response => response.json())
       .then(data => {
-        dispatch(setUsers(data)); // Assuming you have a setUsers action in your userSlice
+        setUsers(data)
+        dispatch(setListUsers(data));
         dispatch(setLoading(false));
       })
       .catch(error => {
@@ -27,19 +34,31 @@ export default function Page(){
   }, []);
 
   const addUser = async () => {
-    const response = await fetch('/api/users', {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email }),
-    });
+    try{
+      console.log(name, email, 39);
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email }),
+      });
 
-    const newUser = await response.json();
-    console.log(newUser);
-    dispatch(setUsers([...users, newUser])); // Assuming you have a setUsers action in your userSlice
-    setEmail('');
-    setName("");
+      console.log(response, 22);
+
+      if(!response.ok) {
+        throw new Error('Failed to add user');
+      }
+
+      const newUser = await response.json();
+      setUsers(prev => [...prev, newUser])
+      dispatch(setListUsers([...users, newUser]));
+      setEmail('');
+      setName("");
+    }catch(error){
+      console.error('Error adding user:', error);
+      return;
+    }
   }
 
   const updateUser = async (id: string) => {
@@ -59,7 +78,8 @@ export default function Page(){
     });
 
     const updated = await response.json();
-    // setUsers(prev => prev.map(user => user.id === id ? updated : user));
+    setUsers(prev => prev.map(user => user.id === id ? updated : user));
+    dispatch(setListUsers(users.map(user => user.id === id ? updated : user)));
   }
 
   const deleteUser = async (id: string) => {
@@ -72,12 +92,13 @@ export default function Page(){
     });
 
     const deletedUser = await response.json();
-    // setUsers(prev => prev.filter((user: User) => user.id !== deletedUser.id));
+    setUsers(prev => prev.filter((user: User) => user.id !== deletedUser.id));
+    dispatch(setListUsers(users.filter((user: User) => user.id !== deletedUser.id)));
   }
 
   return (
-    <div>
-      <h1>Users Page</h1>
+    <div className="p-4">
+      <h1 className="text-2xl mb-4">Users Page</h1>
 
       {/* INPUT USERS */}
       <div>
@@ -109,7 +130,7 @@ export default function Page(){
             <li key={user.id} className="flex items-center justify-between my-2">
               <span>{ user?.name }</span>
               <div>
-                {/* <button className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
+                <button className="bg-yellow-500 text-white px-4 py-2 rounded mr-2"
                   onClick={() => updateUser(user.id)}
                 >
                   Edit
@@ -118,7 +139,7 @@ export default function Page(){
                   onClick={() => deleteUser(user.id)}
                 >
                   Delete
-                </button> */}
+                </button>
               </div>
             </li>
           ))}
@@ -126,8 +147,11 @@ export default function Page(){
       ):(
         <p>No users found.</p>
       )}
-
-      <ListUser />
     </div>
   )
 }
+
+
+
+
+
